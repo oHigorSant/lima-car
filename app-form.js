@@ -19,9 +19,16 @@ const ContactForm = () => {
     if (d.length <= 10) return `(${d.slice(0, 2)}) ${d.slice(2, 6)}-${d.slice(6)}`;
     return `(${d.slice(0, 2)}) ${d.slice(2, 7)}-${d.slice(7)}`;
   };
-  const submit = e => {
+  const submit = async e => {
     e.preventDefault();
     if (!data.nome || !data.telefone || !data.servico || !data.urgencia) return;
+    try {
+      await fetch('/api/lead', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data),
+      });
+    } catch (_) {}
     setSent(true);
   };
   if (sent) {
