@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lima Car Admin</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:system-ui,sans-serif;background:#0a0a0a;color:#f5f3ef;min-height:100vh}
+.top{background:#141414;border-bottom:1px solid #2a2a2a;padding:18px 32px;display:flex;align-items:center;justify-content:space-between}
+.top h1{font-size:18px;font-weight:700;letter-spacing:-.02em}.top h1 span{color:#f6811d}
+.top small{font-size:12px;color:#5a5a5a;font-family:monospace}
+.wrap{max-width:1400px;margin:0 auto;padding:32px}
+.cards{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:32px}
+.card{background:#141414;border:1px solid #2a2a2a;border-radius:12px;padding:22px}
+.card .n{font-size:40px;font-weight:700;letter-spacing:-.03em;color:#f5f3ef}
+.card .n span{color:#f6811d}
+.card .l{font-size:11px;color:#5a5a5a;text-transform:uppercase;letter-spacing:.15em;margin-top:8px}
+.sources{background:#141414;border:1px solid #2a2a2a;border-radius:12px;padding:22px;margin-bottom:32px}
+.sources h2{font-size:13px;color:#5a5a5a;text-transform:uppercase;letter-spacing:.15em;margin-bottom:16px}
+.src-row{display:flex;align-items:center;gap:12px;padding:8px 0;border-bottom:1px solid #1c1c1c}
+.src-row:last-child{border:none}
+.src-label{font-size:14px;min-width:140px}
+.src-bar-wrap{flex:1;background:#1c1c1c;border-radius:99px;height:8px}
+.src-bar{background:#f6811d;height:8px;border-radius:99px;transition:width .5s}
+.src-count{font-size:13px;color:#8a8a8a;min-width:40px;text-align:right}
+.tbl-wrap{background:#141414;border:1px solid #2a2a2a;border-radius:12px;overflow:hidden}
+.tbl-head{padding:18px 24px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid #2a2a2a}
+.tbl-head h2{font-size:13px;color:#5a5a5a;text-transform:uppercase;letter-spacing:.15em}
+.search{background:#0a0a0a;border:1px solid #2a2a2a;border-radius:6px;padding:8px 14px;color:#f5f3ef;font-size:14px;width:240px}
+.search:focus{outline:none;border-color:#f6811d}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th{text-align:left;padding:12px 16px;font-size:10px;text-transform:uppercase;letter-spacing:.18em;color:#5a5a5a;border-bottom:1px solid #2a2a2a;white-space:nowrap}
+td{padding:14px 16px;border-bottom:1px solid #1c1c1c;vertical-align:top;max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+tr:last-child td{border:none}
+tr:hover td{background:rgba(246,129,29,0.03)}
+.badge{display:inline-block;padding:3px 10px;border-radius:99px;font-size:11px;font-weight:600}
+.badge.urgente{background:rgba(239,68,68,.15);color:#f87171}
+.badge.semana{background:rgba(251,191,36,.12);color:#fbbf24}
+.badge.esperar{background:rgba(34,197,94,.12);color:#4ade80}
+.badge.utm{background:rgba(246,129,29,.12);color:#f6811d}
+.badge.null{background:#1c1c1c;color:#5a5a5a}
+.ts{color:#5a5a5a;font-size:12px;font-family:monospace}
+.login{display:flex;align-items:center;justify-content:center;height:100vh}
+.login-box{background:#141414;border:1px solid #2a2a2a;border-radius:16px;padding:40px;width:360px;text-align:center}
+.login-box h2{margin-bottom:8px;font-size:22px}
+.login-box p{color:#5a5a5a;font-size:14px;margin-bottom:28px}
+.login-box input{width:100%;background:#0a0a0a;border:1px solid #2a2a2a;border-radius:8px;padding:14px 16px;color:#f5f3ef;font-size:15px;margin-bottom:12px}
+.login-box input:focus{outline:none;border-color:#f6811d}
+.btn{width:100%;background:#f6811d;color:#0a0a0a;border:none;border-radius:8px;padding:14px;font-size:15px;font-weight:700;cursor:pointer}
+.btn:hover{background:#ff8f2a}
+#app{display:none}
+</style>
+</head>
+<body>
+
+<div class="login" id="loginScreen">
+  <div class="login-box">
+    <h2>Lima Car <span style="color:#f6811d">Admin</span></h2>
+    <p>Painel de leads — acesso restrito</p>
+    <input type="password" id="tokenInput" placeholder="Token de acesso" onkeydown="if(event.key==='Enter')login()">
+    <button class="btn" onclick="login()">Entrar</button>
+    <p id="loginErr" style="color:#f87171;margin-top:12px;font-size:13px"></p>
+  </div>
+</div>
+
+<div id="app">
+  <div class="top">
+    <h1>Lima Car <span>Admin</span></h1>
+    <small id="lastUpdate"></small>
+  </div>
+  <div class="wrap">
+    <div class="cards">
+      <div class="card"><div class="n" id="statTotal">0</div><div class="l">Total de Leads</div></div>
+      <div class="card"><div class="n" id="statHoje">0</div><div class="l">Leads Hoje</div></div>
+      <div class="card"><div class="n" id="statSources">0</div><div class="l">Origens Distintas</div></div>
+      <div class="card"><div class="n" id="statUrgente"><span>0</span></div><div class="l">Urgentes</div></div>
+    </div>
+    <div class="sources">
+      <h2>Origens (utm_source)</h2>
+      <div id="sourcesChart"></div>
+    </div>
+    <div class="tbl-wrap">
+      <div class="tbl-head">
+        <h2>Leads Recebidos</h2>
+        <input class="search" placeholder="Buscar nome ou telefone..." oninput="filterTable(this.value)">
+      </div>
+      <div style="overflow-x:auto">
+        <table>
+          <thead>
+            <tr>
+              <th>#</th><th>Data / Hora</th><th>Nome</th><th>Telefone</th>
+              <th>Servico</th><th>Urgencia</th>
+              <th>utm_source</th><th>utm_medium</th><th>utm_campaign</th>
+              <th>utm_term</th><th>utm_content</th>
+              <th>Pagina</th><th>IP</th>
+            </tr>
+          </thead>
+          <tbody id="leadsBody"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+const API = '/api';
+let TOKEN = '';
+let allLeads = [];
+
+function login() {
+  TOKEN = document.getElementById('tokenInput').value.trim();
+  loadData();
+}
+
+async function loadData() {
+  try {
+    const [leadsRes, statsRes] = await Promise.all([
+      fetch(API + '/leads', { headers: { 'x-token': TOKEN } }),
+      fetch(API + '/stats',  { headers: { 'x-token': TOKEN } })
+    ]);
+    if (leadsRes.status === 401) {
+      document.getElementById('loginErr').textContent = 'Token invalido';
+      return;
+    }
+    allLeads = await leadsRes.json();
+    const stats = await statsRes.json();
+
+    document.getElementById('loginScreen').style.display = 'none';
+    document.getElementById('app').style.display = 'block';
+
+    document.getElementById('statTotal').textContent   = stats.total;
+    document.getElementById('statHoje').textContent    = stats.hoje;
+    document.getElementById('statSources').textContent = stats.sources.length;
+
+    const urgente = (stats.urgencia.find(function(u){ return u.urgencia === 'Urgente'; }) || {}).total || '0';
+    document.getElementById('statUrgente').innerHTML = '<span style="color:#f87171">' + urgente + '</span>';
+
+    const maxSrc = stats.sources[0] ? parseInt(stats.sources[0].total) : 1;
+    document.getElementById('sourcesChart').innerHTML = stats.sources.length
+      ? stats.sources.map(function(s) {
+          return '<div class="src-row"><div class="src-label"><span class="badge utm">' + s.utm_source + '</span></div>'
+               + '<div class="src-bar-wrap"><div class="src-bar" style="width:' + Math.round(s.total/maxSrc*100) + '%"></div></div>'
+               + '<div class="src-count">' + s.total + '</div></div>';
+        }).join('')
+      : '<div style="color:#5a5a5a;font-size:14px;padding:8px 0">Nenhuma origem registrada ainda</div>';
+
+    renderTable(allLeads);
+    document.getElementById('lastUpdate').textContent = 'Atualizado: ' + new Date().toLocaleTimeString('pt-BR');
+  } catch(err) {
+    document.getElementById('loginErr').textContent = 'Erro ao conectar com a API';
+  }
+}
+
+function urg(v) {
+  if (!v) return '<span class="badge null">-</span>';
+  var cls = v === 'Urgente' ? 'urgente' : (v === 'Esta semana' ? 'semana' : 'esperar');
+  return '<span class="badge ' + cls + '">' + v + '</span>';
+}
+function utm(v) {
+  return v ? '<span class="badge utm">' + v + '</span>' : '<span class="badge null">-</span>';
+}
+function fmt(dt) {
+  return new Date(dt).toLocaleString('pt-BR', {day:'2-digit',month:'2-digit',year:'2-digit',hour:'2-digit',minute:'2-digit'});
+}
+
+function renderTable(leads) {
+  var tbody = document.getElementById('leadsBody');
+  if (!leads.length) {
+    tbody.innerHTML = '<tr><td colspan="13" style="text-align:center;padding:48px;color:#5a5a5a">Nenhum lead ainda</td></tr>';
+    return;
+  }
+  tbody.innerHTML = leads.map(function(l) {
+    var page = l.page_url ? l.page_url.replace('https://','').replace('http://','').substring(0,35) : '-';
+    return '<tr>'
+      + '<td class="ts">#' + l.id + '</td>'
+      + '<td class="ts">' + fmt(l.created_at) + '</td>'
+      + '<td><strong>' + l.nome + '</strong></td>'
+      + '<td>' + l.telefone + '</td>'
+      + '<td>' + (l.servico || '-') + '</td>'
+      + '<td>' + urg(l.urgencia) + '</td>'
+      + '<td>' + utm(l.utm_source) + '</td>'
+      + '<td>' + utm(l.utm_medium) + '</td>'
+      + '<td>' + utm(l.utm_campaign) + '</td>'
+      + '<td>' + utm(l.utm_term) + '</td>'
+      + '<td>' + utm(l.utm_content) + '</td>'
+      + '<td title="' + (l.page_url||'') + '"><span style="color:#5a5a5a;font-size:11px">' + page + '</span></td>'
+      + '<td class="ts">' + (l.ip ? l.ip.substring(0,22) : '-') + '</td>'
+      + '</tr>';
+  }).join('');
+}
+
+function filterTable(q) {
+  var filtered = q
+    ? allLeads.filter(function(l){ return l.nome.toLowerCase().indexOf(q.toLowerCase()) > -1 || l.telefone.indexOf(q) > -1; })
+    : allLeads;
+  renderTable(filtered);
+}
+
+setInterval(function(){ if(TOKEN) loadData(); }, 60000);
+</script>
+</body>
+</html>

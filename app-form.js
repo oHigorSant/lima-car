@@ -23,10 +23,20 @@ const ContactForm = () => {
     e.preventDefault();
     if (!data.nome || !data.telefone || !data.servico || !data.urgencia) return;
     try {
+      const p = new URLSearchParams(window.location.search);
+      const payload = {
+        ...data,
+        utm_source:   p.get('utm_source'),
+        utm_medium:   p.get('utm_medium'),
+        utm_campaign: p.get('utm_campaign'),
+        utm_term:     p.get('utm_term'),
+        utm_content:  p.get('utm_content'),
+        page_url:     window.location.href,
+      };
       await fetch('/api/lead', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(data),
+        body: JSON.stringify(payload),
       });
     } catch (_) {}
     setSent(true);
