@@ -1113,10 +1113,12 @@ h2 .strike::after {
 
 @media (max-width: 880px) {
   .form-wrap { grid-template-columns: 1fr; gap: 36px; }
-  .form-card { padding: 24px 18px; }
+  .form-card { padding: 24px 18px; max-width: 100%; overflow: hidden; }
   .form-section { padding: 60px 0; }
   .urgency-grid { gap: 6px; }
   .urgency-btn { font-size: 13px; padding: 12px 4px; }
+  .form-success .btn { width: 100%; justify-content: center; }
+  .form-success { padding: 24px 0; }
 }
 
 /* ============ TESTIMONIALS ============ */
