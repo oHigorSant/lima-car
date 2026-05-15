@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lima Car — Leads</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Segoe UI',system-ui,sans-serif;background:#f8fafc;color:#111827;min-height:100vh}
+
+/* Login */
+.login-wrap{display:flex;align-items:center;justify-content:center;min-height:100vh;background:#f8fafc}
+.login-box{background:#fff;border:1px solid #e5e7eb;border-radius:16px;padding:40px;width:360px;box-shadow:0 4px 24px rgba(0,0,0,.07)}
+.login-logo{text-align:center;margin-bottom:28px}
+.login-logo .brand{font-size:22px;font-weight:800;letter-spacing:-.03em}
+.login-logo .brand span{color:#f6811d}
+.login-logo p{color:#6b7280;font-size:13px;margin-top:4px}
+.login-box label{display:block;font-size:12px;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:.6px;margin-bottom:6px}
+.login-box input{width:100%;padding:11px 14px;border:1.5px solid #e5e7eb;border-radius:8px;font-size:14px;margin-bottom:14px;outline:none;transition:border .15s}
+.login-box input:focus{border-color:#f6811d}
+.login-btn{width:100%;background:#f6811d;color:#fff;border:none;border-radius:8px;padding:13px;font-size:15px;font-weight:700;cursor:pointer;margin-top:4px;transition:background .15s}
+.login-btn:hover{background:#e5720f}
+.login-err{color:#ef4444;font-size:13px;text-align:center;margin-top:12px;display:none}
+
+/* App */
+#app{display:none}
+.top{background:#fff;border-bottom:1px solid #e5e7eb;padding:16px 32px;display:flex;align-items:center;justify-content:space-between}
+.top-brand{font-size:17px;font-weight:800;letter-spacing:-.02em}
+.top-brand span{color:#f6811d}
+.top-right{display:flex;align-items:center;gap:16px}
+.top-right small{font-size:12px;color:#9ca3af}
+.logout-btn{background:none;border:1.5px solid #e5e7eb;border-radius:7px;padding:7px 14px;font-size:13px;font-weight:600;cursor:pointer;color:#6b7280;transition:all .15s}
+.logout-btn:hover{border-color:#f6811d;color:#f6811d}
+
+.wrap{max-width:1400px;margin:0 auto;padding:28px 24px}
+
+/* Stats */
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:24px}
+@media(max-width:700px){.stats{grid-template-columns:1fr 1fr}}
+.stat{background:#fff;border:1px solid #e5e7eb;border-radius:12px;padding:20px}
+.stat-l{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:#9ca3af}
+.stat-v{font-size:30px;font-weight:800;margin-top:6px;color:#f6811d;line-height:1}
+.stat-v.neutral{color:#111827}
+
+/* Chart */
+.chart-card{background:#fff;border:1px solid #e5e7eb;border-radius:12px;padding:22px;margin-bottom:20px}
+.card-title{font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:#9ca3af;margin-bottom:16px}
+.src-row{display:flex;align-items:center;gap:12px;padding:7px 0;border-bottom:1px solid #f3f4f6}
+.src-row:last-child{border:none}
+.src-label{min-width:130px;font-size:13px;font-weight:600}
+.src-bar-wrap{flex:1;background:#f3f4f6;border-radius:99px;height:8px}
+.src-bar{background:#f6811d;height:8px;border-radius:99px;transition:width .5s}
+.src-count{font-size:13px;color:#9ca3af;min-width:32px;text-align:right}
+
+/* Table */
+.table-card{background:#fff;border:1px solid #e5e7eb;border-radius:12px;overflow:hidden;margin-bottom:20px}
+.table-toolbar{padding:14px 18px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid #e5e7eb;flex-wrap:wrap;gap:10px}
+.table-toolbar h2{font-size:14px;font-weight:700}
+.search{padding:8px 12px;border:1.5px solid #e5e7eb;border-radius:8px;font-size:13px;width:220px;outline:none}
+.search:focus{border-color:#f6811d}
+.tw{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th{text-align:left;padding:10px 14px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:#9ca3af;background:#fafafa;border-bottom:1px solid #e5e7eb;white-space:nowrap}
+td{padding:12px 14px;border-bottom:1px solid #f3f4f6;vertical-align:middle}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:#fafafa}
+.mono{font-family:monospace;font-size:12px;color:#9ca3af}
+.badge{display:inline-block;padding:3px 9px;border-radius:20px;font-size:11px;font-weight:700}
+.urgente{background:#fee2e2;color:#991b1b}
+.semana{background:#fef3c7;color:#92400e}
+.esperar{background:#d1fae5;color:#065f46}
+.utm-badge{background:#ede9fe;color:#5b21b6}
+.dash{color:#d1d5db}
+
+/* Pager */
+.pager{display:flex;align-items:center;justify-content:space-between;padding:12px 18px;border-top:1px solid #e5e7eb}
+.pager-info{font-size:13px;color:#9ca3af}
+.pager-btns{display:flex;gap:6px}
+.pager-btn{padding:6px 14px;border:1.5px solid #e5e7eb;background:#fff;border-radius:7px;font-size:13px;cursor:pointer;font-weight:500}
+.pager-btn:hover:not([disabled]){border-color:#f6811d;color:#f6811d}
+.pager-btn[disabled]{opacity:.4;cursor:default}
+
+/* Delete modal */
+.modal-bg{display:none;position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:100;align-items:center;justify-content:center;padding:16px}
+.modal-bg.on{display:flex}
+.modal{background:#fff;border-radius:14px;padding:28px;width:100%;max-width:420px;box-shadow:0 20px 60px rgba(0,0,0,.15)}
+.modal h2{font-size:17px;font-weight:700;margin-bottom:8px}
+.modal p{font-size:13px;color:#6b7280;margin-bottom:6px;line-height:1.6}
+.modal .dn{font-weight:700;color:#111;background:#f9fafb;padding:2px 7px;border-radius:5px;font-family:monospace}
+.modal input{width:100%;padding:10px 12px;border:1.5px solid #e5e7eb;border-radius:8px;font-size:14px;outline:none;margin:12px 0}
+.modal input:focus{border-color:#ef4444}
+.modal-btns{display:flex;justify-content:flex-end;gap:10px}
+.btn-cancel{padding:9px 18px;border:1.5px solid #e5e7eb;background:#fff;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer}
+.btn-cancel:hover{border-color:#9ca3af}
+.btn-delete{padding:9px 18px;background:#ef4444;color:#fff;border:none;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer;opacity:.4;pointer-events:none;transition:all .15s}
+.btn-delete.active{opacity:1;pointer-events:all}
+.btn-delete.active:hover{background:#dc2626}
+</style>
+</head>
+<body>
+
+<!-- Login -->
+<div class="login-wrap" id="loginWrap">
+  <div class="login-box">
+    <div class="login-logo">
+      <div class="brand">Lima<span>Car</span></div>
+      <p>Painel de Leads</p>
+    </div>
+    <label>Usuário</label>
+    <input type="text" id="loginUser" placeholder="admin" onkeydown="if(event.key==='Enter')document.getElementById('loginPass').focus()">
+    <label>Senha</label>
+    <input type="password" id="loginPass" placeholder="••••••••" onkeydown="if(event.key==='Enter')doLogin()">
+    <button class="login-btn" onclick="doLogin()">Entrar</button>
+    <div class="login-err" id="loginErr">Usuário ou senha incorretos</div>
+  </div>
+</div>
+
+<!-- App -->
+<div id="app">
+  <div class="top">
+    <div class="top-brand">Lima<span>Car</span> — Leads</div>
+    <div class="top-right">
+      <small id="lastUpdate"></small>
+      <button class="logout-btn" onclick="doLogout()">Sair</button>
+    </div>
+  </div>
+  <div class="wrap">
+    <div class="stats">
+      <div class="stat"><div class="stat-l">Total de Leads</div><div class="stat-v neutral" id="sTotal">—</div></div>
+      <div class="stat"><div class="stat-l">Hoje</div><div class="stat-v" id="sHoje">—</div></div>
+      <div class="stat"><div class="stat-l">Origens</div><div class="stat-v neutral" id="sSources">—</div></div>
+      <div class="stat"><div class="stat-l">Urgentes</div><div class="stat-v" id="sUrgentes">—</div></div>
+    </div>
+    <div class="chart-card">
+      <div class="card-title">Origens (utm_source)</div>
+      <div id="chart"></div>
+    </div>
+    <div class="table-card">
+      <div class="table-toolbar">
+        <h2>Leads Recebidos</h2>
+        <input class="search" placeholder="Buscar nome ou telefone..." oninput="filterLeads(this.value)">
+      </div>
+      <div class="tw">
+        <table>
+          <thead>
+            <tr>
+              <th>#</th><th>Data / Hora</th><th>Nome</th><th>Telefone</th>
+              <th>Serviço</th><th>Urgência</th>
+              <th>utm_source</th><th>utm_medium</th><th>utm_campaign</th>
+              <th>utm_term</th><th>utm_content</th>
+              <th>Página</th><th>IP</th><th></th>
+            </tr>
+          </thead>
+          <tbody id="tbody"></tbody>
+        </table>
+      </div>
+      <div class="pager">
+        <span class="pager-info" id="pagerInfo"></span>
+        <div class="pager-btns">
+          <button class="pager-btn" id="btnPrev" onclick="loadLeads(currentPage-1)">← Anterior</button>
+          <button class="pager-btn" id="btnNext" onclick="loadLeads(currentPage+1)">Próxima →</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal de confirmação -->
+<div class="modal-bg" id="delModal">
+  <div class="modal">
+    <h2>Confirmar exclusão</h2>
+    <p>Para confirmar, digite o nome abaixo:</p>
+    <p><span class="dn" id="delName"></span></p>
+    <input type="text" id="delInput" placeholder="Digite o nome para confirmar...">
+    <div class="modal-btns">
+      <button class="btn-cancel" onclick="closeModal()">Cancelar</button>
+      <button class="btn-delete" id="btnDelete">Excluir</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const CREDS = { user: 'admin', pass: 'LimaCar#2026' };
+const TOKEN = 'limacar-admin-2026';
+const API   = '/api';
+const LIMIT = 25;
+
+let currentPage = 1;
+let allLeads = [];
+let filteredLeads = [];
+let deleteCb = null;
+
+/* ── Auth ── */
+function doLogin() {
+  var u = document.getElementById('loginUser').value.trim();
+  var p = document.getElementById('loginPass').value;
+  if (u === CREDS.user && p === CREDS.pass) {
+    sessionStorage.setItem('lc_auth', '1');
+    document.getElementById('loginWrap').style.display = 'none';
+    document.getElementById('app').style.display = 'block';
+    loadAll();
+    setInterval(loadAll, 60000);
+  } else {
+    document.getElementById('loginErr').style.display = 'block';
+  }
+}
+function doLogout() {
+  sessionStorage.removeItem('lc_auth');
+  location.reload();
+}
+if (sessionStorage.getItem('lc_auth')) {
+  document.getElementById('loginWrap').style.display = 'none';
+  document.getElementById('app').style.display = 'block';
+  loadAll();
+  setInterval(loadAll, 60000);
+}
+
+/* ── API ── */
+async function api(path) {
+  var r = await fetch(API + path, { headers: { 'x-token': TOKEN } });
+  if (!r.ok) return null;
+  return r.json();
+}
+async function apiDelete(id) {
+  return fetch(API + '/leads/' + id, { method: 'DELETE', headers: { 'x-token': TOKEN } });
+}
+
+/* ── Load ── */
+async function loadAll() {
+  await Promise.all([loadStats(), loadLeads(currentPage)]);
+  document.getElementById('lastUpdate').textContent = 'Atualizado: ' + new Date().toLocaleTimeString('pt-BR');
+}
+
+async function loadStats() {
+  var s = await api('/stats');
+  if (!s) return;
+  document.getElementById('sTotal').textContent   = s.total;
+  document.getElementById('sHoje').textContent    = s.hoje;
+  document.getElementById('sSources').textContent = s.sources.length;
+  var urg = (s.urgencia.find(function(u){ return u.urgencia === 'Urgente'; }) || {}).total || 0;
+  document.getElementById('sUrgentes').textContent = urg;
+  var max = s.sources[0] ? parseInt(s.sources[0].total) : 1;
+  document.getElementById('chart').innerHTML = s.sources.length
+    ? s.sources.map(function(src) {
+        return '<div class="src-row">'
+          + '<span class="src-label">' + src.utm_source + '</span>'
+          + '<div class="src-bar-wrap"><div class="src-bar" style="width:' + Math.round(src.total/max*100) + '%"></div></div>'
+          + '<span class="src-count">' + src.total + '</span></div>';
+      }).join('')
+    : '<span style="color:#9ca3af;font-size:13px">Nenhuma origem registrada ainda</span>';
+}
+
+async function loadLeads(page) {
+  currentPage = page;
+  var d = await api('/leads?page=' + page + '&limit=' + LIMIT);
+  if (!d) return;
+  allLeads = d.rows;
+  filteredLeads = allLeads;
+  renderTable(allLeads, d.total, page);
+}
+
+function filterLeads(q) {
+  filteredLeads = q
+    ? allLeads.filter(function(r){ return r.nome.toLowerCase().indexOf(q.toLowerCase()) > -1 || r.telefone.indexOf(q) > -1; })
+    : allLeads;
+  renderTable(filteredLeads, filteredLeads.length, 1);
+}
+
+/* ── Render ── */
+function urg(v) {
+  if (!v) return '<span class="dash">—</span>';
+  var cls = v === 'Urgente' ? 'urgente' : (v === 'Esta semana' ? 'semana' : 'esperar');
+  return '<span class="badge ' + cls + '">' + v + '</span>';
+}
+function utm(v) {
+  return v ? '<span class="badge utm-badge">' + v + '</span>' : '<span class="dash">—</span>';
+}
+function fmt(s) {
+  return new Date(s).toLocaleString('pt-BR', {day:'2-digit',month:'2-digit',year:'2-digit',hour:'2-digit',minute:'2-digit'});
+}
+
+function renderTable(rows, total, page) {
+  var tbody = document.getElementById('tbody');
+  tbody.innerHTML = rows.length
+    ? rows.map(function(r) {
+        var page_short = (r.page_url||'').replace(/https?:\/\//,'').substring(0,28);
+        return '<tr>'
+          + '<td class="mono">#' + r.id + '</td>'
+          + '<td class="mono">' + fmt(r.created_at) + '</td>'
+          + '<td><strong>' + r.nome + '</strong></td>'
+          + '<td>' + r.telefone + '</td>'
+          + '<td>' + (r.servico||'—') + '</td>'
+          + '<td>' + urg(r.urgencia) + '</td>'
+          + '<td>' + utm(r.utm_source) + '</td>'
+          + '<td>' + utm(r.utm_medium) + '</td>'
+          + '<td>' + utm(r.utm_campaign) + '</td>'
+          + '<td>' + utm(r.utm_term) + '</td>'
+          + '<td>' + utm(r.utm_content) + '</td>'
+          + '<td class="mono" title="' + (r.page_url||'') + '">' + (page_short||'—') + '</td>'
+          + '<td class="mono">' + (r.ip||'—').substring(0,18) + '</td>'
+          + '<td><button onclick="askDelete(' + r.id + ',this)" style="background:#fee2e2;color:#991b1b;border:none;border-radius:6px;padding:5px 11px;font-size:12px;font-weight:700;cursor:pointer">Excluir</button></td>'
+          + '</tr>';
+      }).join('')
+    : '<tr><td colspan="14" style="text-align:center;padding:40px;color:#9ca3af">Nenhum lead encontrado</td></tr>';
+
+  var pages = Math.ceil(total / LIMIT);
+  document.getElementById('pagerInfo').textContent = total + ' lead' + (total !== 1 ? 's' : '') + ' — página ' + page + ' de ' + (pages||1);
+  document.getElementById('btnPrev').disabled = page <= 1;
+  document.getElementById('btnNext').disabled = page >= pages;
+}
+
+/* ── Delete ── */
+function askDelete(id, btn) {
+  var nome = btn.closest('tr').querySelectorAll('td')[2].textContent.trim();
+  deleteCb = async function() {
+    await apiDelete(id);
+    closeModal();
+    loadAll();
+  };
+  document.getElementById('delName').textContent = nome;
+  document.getElementById('delInput').value = '';
+  document.getElementById('btnDelete').classList.remove('active');
+  document.getElementById('delModal').classList.add('on');
+  setTimeout(function(){ document.getElementById('delInput').focus(); }, 100);
+}
+
+document.getElementById('delInput').addEventListener('input', function() {
+  var match = this.value === document.getElementById('delName').textContent;
+  document.getElementById('btnDelete').classList.toggle('active', match);
+});
+
+document.getElementById('btnDelete').addEventListener('click', function() {
+  if (deleteCb) deleteCb();
+});
+
+function closeModal() {
+  document.getElementById('delModal').classList.remove('on');
+  deleteCb = null;
+}
+
+document.getElementById('delModal').addEventListener('click', function(e) {
+  if (e.target === this) closeModal();
+});
+</script>
+</body>
+</html>
